@@ -10,26 +10,36 @@ fn main() {
             .takes_value(true)
             .default_value("tcp://*:42024"),
     );
-
+    
+    eprint!("BRHEH");
     let app = rpi_led_matrix::args::add_matrix_args(app);
+    eprint!("BRHEH1");
+
     let matches = app.get_matches();
+    eprint!("BRHEH2");
 
     let (mut matrix_opts, mut matrix_rt_opts) =
         rpi_led_matrix::args::matrix_options_from_args(&matches);
+    
+    eprint!("BRHEH3");
 
     matrix_opts.set_cols(64);
     matrix_opts.set_rows(32);
     matrix_opts.set_refresh_rate(false);
-    matrix_opts.set_pwm_lsb_nanoseconds(100);
+    // matrix_opts.set_pwm_lsb_nanoseconds(100);
     matrix_opts.set_brightness(100).unwrap();
-    matrix_opts.set_limit_refresh(120);
+    matrix_opts.set_limit_refresh(0);
 
     matrix_rt_opts.set_daemon(false);
     matrix_rt_opts.set_drop_privileges(true);
-    matrix_rt_opts.set_gpio_slowdown(2);
+    // matrix_rt_opts.set_gpio_slowdown(1);
+    eprint!("BRHEH4");
 
     let matrix = LedMatrix::new(Some(matrix_opts), Some(matrix_rt_opts)).unwrap();
+    eprint!("BRHEH5");
+
     let mut canvas = matrix.offscreen_canvas();
+    eprint!("BRHEH6");
 
     let matrix_server_settings = MatrixServerSettings {
         bind_address: matches.value_of("bind_address").unwrap().to_string(),
