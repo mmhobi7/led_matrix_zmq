@@ -1,5 +1,3 @@
-use zmq;
-
 #[derive(Clone, Debug)]
 pub struct MatrixClientSettings {
     pub addr: String,

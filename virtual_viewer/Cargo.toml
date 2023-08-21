@@ -6,7 +6,7 @@ edition = "2018"
 [dependencies]
 led_matrix_zmq = { path = "../" }
 
-gfx = "0.18.2"
-ggez = "0.6.1"
-glam = { version = "0.20.0", features = ["mint"] }
+gfx = "0.18.3"
+ggez = "0.7.1"
+glam = { version = "0.24.1", features = ["mint"] }
 structopt = "0.3"

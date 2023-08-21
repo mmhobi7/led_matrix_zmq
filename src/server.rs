@@ -2,7 +2,6 @@ use std::sync::Arc;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 use std::thread;
-use zmq;
 
 pub type ThreadedMatrixRx = Receiver<MatrixMessage>;
 pub type ThreadedMatrixTx = Sender<MatrixMessage>;

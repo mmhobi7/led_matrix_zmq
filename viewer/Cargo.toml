@@ -1,10 +1,9 @@
 [package]
 name = "viewer"
-version = "0.1.0"
-edition = "2018"
+version = "0.1.2"
 
 [dependencies]
 led_matrix_zmq = { path = "../" }
 
-clap = "2.33.3"
-rpi-led-matrix = { version = "0.2.2", features = ["args"] }
+clap = "4.3.23"
+rpi-led-matrix = { version = "0.4.0", features = ["args"] }
