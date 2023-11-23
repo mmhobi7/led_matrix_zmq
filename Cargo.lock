@@ -751,9 +751,9 @@ checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
 name = "embedded-graphics-core"
-version = "0.3.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8b1239db5f3eeb7e33e35bd10bd014e7b2537b17e071f726a09351431337cfa"
+checksum = "ba9ecd261f991856250d2207f6d8376946cd9f412a2165d3b75bc87a0bc7a044"
 dependencies = [
  "az",
  "byteorder",
@@ -1893,9 +1893,9 @@ dependencies = [
 
 [[package]]
 name = "os_str_bytes"
-version = "6.5.1"
+version = "6.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d5d9eb14b174ee9aa2ef96dc2b94637a2d4b6e7cb873c7e171f0c20c6cf3eac"
+checksum = "e2355d85b9a3786f481747ced0e0ff2ba35213a1f9bd406ed906554d7af805a1"
 
 [[package]]
 name = "osmesa-sys"
@@ -2231,9 +2231,8 @@ dependencies = [
 
 [[package]]
 name = "rpi-led-matrix"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dad33d57f9596dd7778b97c962d2b61f12f0a7ba9e6687e97660cbdeabc5b670"
+version = "0.4.1"
+source = "git+http://github.com/mmhobi7/rust-rpi-rgb-led-matrix.git?branch=main#146b4159fe70677dbab9581002ea868c23bd1728"
 dependencies = [
  "clap 3.2.25",
  "embedded-graphics-core",
@@ -2243,9 +2242,8 @@ dependencies = [
 
 [[package]]
 name = "rpi-led-matrix-sys"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c8a1a28f8e8825eb093134821795c2f48954e207f46715225828af9d2fc9008"
+version = "0.2.3"
+source = "git+http://github.com/mmhobi7/rust-rpi-rgb-led-matrix.git?branch=main#146b4159fe70677dbab9581002ea868c23bd1728"
 dependencies = [
  "copy_dir",
  "libc",
@@ -2652,9 +2650,9 @@ dependencies = [
 
 [[package]]
 name = "termcolor"
-version = "1.2.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be55cf8942feac5c765c2c993422806843c9a9a45d4d5c407ad6dd2ea95eb9b6"
+checksum = "ff1bc3d3f05aff0403e8ac0d92ced918ec05b666a43f83297ccef5bea8a3d449"
 dependencies = [
  "winapi-util",
 ]
@@ -2841,7 +2839,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 name = "viewer"
 version = "0.1.3"
 dependencies = [
- "clap 2.34.0",
+ "clap 3.2.25",
  "led_matrix_zmq",
  "rpi-led-matrix",
 ]
