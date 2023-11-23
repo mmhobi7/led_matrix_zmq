@@ -3,8 +3,8 @@ use clap::{App, Arg};
 use led_matrix_zmq::server::{MatrixMessage, MatrixServer, MatrixServerSettings};
 use rpi_led_matrix::{LedColor, LedMatrix};
 
-const COL_SIZE: u32 = 64;
-const ROW_SIZE: u32 = 32;
+const COL_SIZE: i32 = 64;
+const ROW_SIZE: i32 = 32;
 
 fn main() {
     let app = App::new("led_matrix_zmq").arg(
@@ -51,21 +51,17 @@ fn main() {
                 for y in 0..ROW_SIZE {
                     for x in 0..COL_SIZE {
                         let i = (y * COL_SIZE + x) * 3;
-                        let r = frame[i];
-                        let g = frame[i + 1];
-                        let b = frame[i + 2];
                         canvas.set(
-                            x as i32,
-                            y as i32,
+                            x,
+                            y,
                             &LedColor {
-                                red: r,
-                                green: g,
-                                blue: b,
+                                red: frame[i],
+                                green: frame[i+1],
+                                blue: frame[i+2],
                             },
                         );
                     }
                 }
-
                 canvas = matrix.swap(canvas);
             }
             _ => {}
