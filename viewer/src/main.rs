@@ -25,7 +25,7 @@ fn main() {
     matrix_opts.set_parallel(1);
     // matrix_opts.set_pwm_dither_bits(0);
     // matrix_opts.set_pwm_lsb_nanoseconds(200);
-    matrix_opts.set_brightness(100);
+    matrix_opts.set_brightness(100).unwrap();
     matrix_opts.set_limit_refresh(0);
    // matrix_opts.set_limit_refresh(120);
 
