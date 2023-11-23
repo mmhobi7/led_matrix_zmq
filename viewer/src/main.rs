@@ -22,9 +22,9 @@ fn main() {
     matrix_opts.set_cols(COL_SIZE);
     matrix_opts.set_rows(ROW_SIZE);
     matrix_opts.set_refresh_rate(false);
-    matrix_opts.set_parallel(3);
+    matrix_opts.set_parallel(1);
     // matrix_opts.set_pwm_dither_bits(0);
-    matrix_opts.set_pwm_lsb_nanoseconds(200);
+    // matrix_opts.set_pwm_lsb_nanoseconds(200);
     matrix_opts.set_brightness(100);
     matrix_opts.set_limit_refresh(0);
    // matrix_opts.set_limit_refresh(120);
