@@ -19,8 +19,8 @@ fn main() {
     let (mut matrix_opts, mut matrix_rt_opts) =
         rpi_led_matrix::args::matrix_options_from_args(&matches);
 
-    matrix_opts.set_cols(COL_SIZE);
-    matrix_opts.set_rows(ROW_SIZE);
+    matrix_opts.set_cols(COL_SIZE as u32);
+    matrix_opts.set_rows(ROW_SIZE as u32);
     matrix_opts.set_refresh_rate(false);
     matrix_opts.set_parallel(1);
     // matrix_opts.set_pwm_dither_bits(0);
@@ -38,8 +38,8 @@ fn main() {
 
     let matrix_server_settings = MatrixServerSettings {
         bind_address: matches.value_of("bind_address").unwrap().to_string(),
-        width: COL_SIZE,
-        height: ROW_SIZE,
+        width: COL_SIZE as u32,
+        height: ROW_SIZE as u32,
     };
 
     let matrix_server = MatrixServer::new(&matrix_server_settings);
@@ -48,9 +48,9 @@ fn main() {
         let msg = matrix_server.recv();
         match msg {
             MatrixMessage::Frame(frame) => {
-                for y in 0..ROW_SIZE {
-                    for x in 0..COL_SIZE {
-                        let i = (y * COL_SIZE + x) * 3;
+                for y in 0..(ROW_SIZE as u32) {
+                    for x in 0..(COL_SIZE as u32) {
+                        let i = (y * (COL_SIZE as u32) + x) * 3;
                         canvas.set(
                             x,
                             y,
