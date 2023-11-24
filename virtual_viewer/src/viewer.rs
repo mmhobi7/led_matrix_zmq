@@ -22,15 +22,15 @@ pub struct ViewerOpts {
     pub scale: f32,
 }
 
-struct ViewerState {
+struct MainState {
     frame: Option<graphics::Image>,
     matrix_shader: graphics::Shader<MatrixPixelShader>,
     opts: ViewerOpts,
     zmq_handle: Arc<ThreadedMatrixServerHandle>,
 }
 
-impl ViewerState {
-    pub fn new(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>, ctx: &mut Context) -> GameResult<ViewerState> {
+impl MainState {
+    pub fn new(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>, ctx: &mut Context) -> GameResult<MainState> {
         ggez::input::mouse::set_cursor_hidden(ctx, false);
 
         let mps: MatrixPixelShader = MatrixPixelShader {
@@ -47,7 +47,7 @@ impl ViewerState {
             None,
         )?;
 
-        Ok(ViewerState {
+        Ok(MainState {
             frame: None,
             matrix_shader: shader,
             opts,
@@ -56,7 +56,7 @@ impl ViewerState {
     }
 }
 
-impl EventHandler<ggez::GameError> for ViewerState {
+impl EventHandler<ggez::GameError> for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let zmq_msg = match self.zmq_handle.rx.try_recv() {
             Ok(m) => m,
@@ -126,6 +126,6 @@ pub fn run(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>) {
         .build()
         .unwrap();
 
-    let viewer = ViewerState::new(opts, zmq_handle, &mut ctx).unwrap();
-    event::run(ctx, event_loop, viewer);
+    let state = MainState::new(opts, zmq_handle, &mut ctx).unwrap();
+    event::run(ctx, event_loop, state);
 }

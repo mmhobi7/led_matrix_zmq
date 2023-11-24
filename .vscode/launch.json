@@ -133,6 +133,43 @@
             },
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'virtual_viewer_new'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=virtual_viewer_new",
+                    "--package=virtual_viewer_new"
+                ],
+                "filter": {
+                    "name": "virtual_viewer_new",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'virtual_viewer_new'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=virtual_viewer_new",
+                    "--package=virtual_viewer_new"
+                ],
+                "filter": {
+                    "name": "virtual_viewer_new",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

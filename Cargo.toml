@@ -9,5 +9,6 @@ zmq = "0.10.0"
 [workspace]
 members = [
   "viewer",
-  "virtual_viewer"
+  "virtual_viewer",
+  "virtual_viewer_new"
 ]
