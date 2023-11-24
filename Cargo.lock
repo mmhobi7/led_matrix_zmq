@@ -2213,7 +2213,7 @@ dependencies = [
 [[package]]
 name = "rpi-led-matrix"
 version = "0.4.1"
-source = "git+http://github.com/mmhobi7/rust-rpi-rgb-led-matrix.git?branch=main#50bc153384db47b2c8cf14da703c295fd265d20b"
+source = "git+http://github.com/mmhobi7/rust-rpi-rgb-led-matrix.git?branch=main#5cd0c41467ee182b6572c5d7fe2a882f8b61bdc5"
 dependencies = [
  "clap 3.2.25",
  "embedded-graphics-core",
@@ -2224,7 +2224,7 @@ dependencies = [
 [[package]]
 name = "rpi-led-matrix-sys"
 version = "0.2.3"
-source = "git+http://github.com/mmhobi7/rust-rpi-rgb-led-matrix.git?branch=main#50bc153384db47b2c8cf14da703c295fd265d20b"
+source = "git+http://github.com/mmhobi7/rust-rpi-rgb-led-matrix.git?branch=main#5cd0c41467ee182b6572c5d7fe2a882f8b61bdc5"
 dependencies = [
  "copy_dir",
  "libc",

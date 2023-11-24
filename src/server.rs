@@ -9,6 +9,7 @@ pub type ThreadedMatrixTx = Sender<MatrixMessage>;
 #[non_exhaustive]
 pub enum MatrixMessage {
     Frame(Vec<u8>),
+    Brightness(u8),
 }
 
 #[derive(Clone, Debug)]
@@ -38,8 +39,11 @@ impl MatrixServer {
     pub fn recv(&self) -> MatrixMessage {
         let bytes = self.socket.recv_bytes(0).unwrap();
         self.socket.send("", 0).unwrap();
-
-        MatrixMessage::Frame(bytes)
+        if bytes[0] == 0{
+            MatrixMessage::Frame(bytes)
+        } else {
+            MatrixMessage::Brightness(bytes[1])
+        }
     }
 }
 

@@ -23,10 +23,11 @@ fn main() {
     matrix_opts.set_rows(ROW_SIZE);
     matrix_opts.set_refresh_rate(false);
     matrix_opts.set_parallel(1);
-    // matrix_opts.set_pwm_dither_bits(0);
-    // matrix_opts.set_pwm_lsb_nanoseconds(200);
+    matrix_opts.set_pwm_dither_bits(0);
+    matrix_opts.set_pwm_lsb_nanoseconds(1000);
     matrix_opts.set_brightness(100).unwrap();
     matrix_opts.set_limit_refresh(0);
+    matrix_opts.set_hardware_pulsing(true);
    // matrix_opts.set_limit_refresh(120);
 
     matrix_rt_opts.set_daemon(true);
@@ -63,6 +64,9 @@ fn main() {
                     }
                 }
                 canvas = matrix.swap(canvas);
+            }
+            MatrixMessage::Brightness(val) => {
+                matrix.set_brightness(val as i32)
             }
             _ => {}
         }
