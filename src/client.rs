@@ -24,10 +24,10 @@ impl MatrixClient {
     }
 
     pub fn send_frame(&self, frame: &[u8]) {
-        // let mut v: Vec<u8> = vec![0];
-        // v.extend_from_slice(frame);
+        let mut v: Vec<u8> = frame.to_vec();
+        v.extend(vec![0]); // ID 0
         for socket in &self.sockets {
-            socket.send(frame, 0).expect("Failed to send frame!");
+            socket.send(&v, 0).expect("Failed to send frame!");
             socket
                 .recv_bytes(0)
                 .expect("Couldn't acknowledge sending frame!");
@@ -35,8 +35,10 @@ impl MatrixClient {
     }
 
     pub fn send_brightness(&self, brightness: u8) {
-        // let frame_encap: &[u8] = &[1, brightness];
-        // self.socket.send(frame_encap, 0).expect("Failed to send frame!");
-        // self.socket.recv_bytes(0).expect("Couldn't acknowledge sending frame!");
+        let frame_encap: &[u8] = &[brightness, 1]; // ID 1
+        for socket in &self.sockets {
+            socket.send(frame_encap, 0).expect("Failed to send frame!");
+            socket.recv_bytes(0).expect("Couldn't acknowledge sending frame!");
+        }
     }
 }

@@ -37,13 +37,14 @@ impl MatrixServer {
     }
 
     pub fn recv(&self) -> MatrixMessage {
-        let bytes = self.socket.recv_bytes(0).unwrap();
+        let mut bytes = self.socket.recv_bytes(0).unwrap();
         self.socket.send("", 0).unwrap();
-        // if bytes[0] == 0{
+        if bytes.last() == Some(&0) {
+            bytes.pop();
             MatrixMessage::Frame(bytes)
-        // } else {
-            // MatrixMessage::Brightness(bytes[1])
-        // }
+        } else {
+            MatrixMessage::Brightness(bytes[0])
+        }
     }
 }
 

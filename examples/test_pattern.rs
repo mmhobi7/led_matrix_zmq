@@ -2,7 +2,7 @@ use led_matrix_zmq::client::{MatrixClient, MatrixClientSettings};
 
 fn main() {
     let opts = MatrixClientSettings {
-        addr: "tcp://matryx-pi:42024".to_string()
+        addrs: vec!["tcp://matryx-pi:42024".to_string()]
     };
 
     let client = MatrixClient::new(opts);
