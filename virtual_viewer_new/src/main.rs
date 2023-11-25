@@ -20,7 +20,7 @@ pub struct Opt {
     /// Matrix scale, for the size of the window.
     pub scale: f32,
 
-    #[structopt(short, long, default_value = "tcp://*:42024")]
+    #[structopt(short, long, default_value = "tcp://*:42025")]
     /// Address to bind ZMQ server to.
     pub bind_address: String,
 }

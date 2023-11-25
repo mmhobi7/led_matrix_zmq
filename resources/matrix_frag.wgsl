@@ -52,11 +52,11 @@ fn vs_main(
     @location(2) color: vec4<f32>,
 ) -> VertexOutput {
     var out: VertexOutput;
-    out.uv = uv * uniforms.src_rect.zw + uniforms.src_rect.xy;
-    // out.uv = mix(uniforms.src_rect.xy, uniforms.src_rect.zw, uv);
+    // out.uv = uv * uniforms.src_rect.zw + uniforms.src_rect.xy;
+    out.uv = mix(uniforms.src_rect.xy, uniforms.src_rect.zw, uv);
     out.color = color; // which color? uniforms.color or color?
     // out.position = vec4<f32>(position, 0.0, 1.0);
-    out.position = dim.rotation * vec4<f32>(position, 0.0, 1.0);
+    out.position = uniforms.transform * vec4<f32>(position, 0.0, 1.0);
     
 
 

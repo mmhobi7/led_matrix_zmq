@@ -73,7 +73,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
                 let img = graphics::Image::from_pixels(
                     _ctx,
                     &rgba,
-                    ImageFormat::Rgba8Unorm,
+                    ImageFormat::Rgba8UnormSrgb,
                     self.zmq_handle.settings.width as u32,
                     self.zmq_handle.settings.height as u32,
                 );
@@ -87,7 +87,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas =
-            graphics::Canvas::from_frame(ctx, graphics::Color::from([0.1, 0.2, 0.3, 1.0]));
+            graphics::Canvas::from_frame(ctx, graphics::Color::BLACK);
 
         if let Some(frame) = self.frame.as_ref() {
             let screen_coords = canvas.screen_coordinates().unwrap();
