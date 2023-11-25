@@ -10,6 +10,8 @@ use glam::Vec2;
 
 use led_matrix_zmq::server::{MatrixMessage, ThreadedMatrixServerHandle};
 
+const WGSL_SHADER: &str = include_str!("matrix.wgsl");
+
 #[derive(AsStd140)]
 struct Dim {
     width: f32,
@@ -35,7 +37,7 @@ impl MainState {
             width: zmq_handle.settings.width as f32,
             height: zmq_handle.settings.height as f32,
         };
-        let shader = graphics::ShaderBuilder::from_path("/matrix_frag.wgsl").build(&ctx.gfx)?;
+        let shader = graphics::ShaderBuilder::from_code(WGSL_SHADER).build(&ctx.gfx)?;
         let params = graphics::ShaderParamsBuilder::new(&dim).build(ctx);
 
         let s = MainState {
@@ -117,14 +119,11 @@ pub struct ViewerOpts {
 }
 
 pub fn run(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>) {
-    let resource_dir = path::PathBuf::from("./resources");
-
     let (mut ctx, event_loop) = ContextBuilder::new("Matrix Viewer", "M.H.")
         .window_mode(ggez::conf::WindowMode::default().dimensions(
             zmq_handle.settings.width as f32 * opts.scale,
             zmq_handle.settings.height as f32 * opts.scale,
         ))
-        .add_resource_path(resource_dir)
         .build()
         .unwrap();
 
