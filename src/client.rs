@@ -1,31 +1,37 @@
 #[derive(Clone, Debug)]
 pub struct MatrixClientSettings {
-    pub addr: String,
+    pub addrs: Vec<String>,
 }
 
 pub struct MatrixClient {
     pub opts: MatrixClientSettings,
-
-    socket: zmq::Socket,
+    pub sockets: Vec<zmq::Socket>,
 }
 
 impl MatrixClient {
     pub fn new(opts: MatrixClientSettings) -> MatrixClient {
         let context = zmq::Context::new();
-        let socket = context.socket(zmq::REQ).unwrap();
-        socket.connect(&opts.addr).expect("Failed to connect to server!");
-
-        MatrixClient {
-            opts,
-            socket
+        let mut sockets: Vec<zmq::Socket> = Vec::new();
+        for addr in &opts.addrs {
+            let new_socket = context.socket(zmq::REQ).unwrap();
+            new_socket
+                .connect(addr)
+                .expect("Failed to connect to server!");
+            sockets.push(new_socket)
         }
+
+        MatrixClient { opts, sockets }
     }
 
     pub fn send_frame(&self, frame: &[u8]) {
         // let mut v: Vec<u8> = vec![0];
         // v.extend_from_slice(frame);
-        self.socket.send(frame, 0).expect("Failed to send frame!");
-        self.socket.recv_bytes(0).expect("Couldn't acknowledge sending frame!");
+        for socket in &self.sockets {
+            socket.send(frame, 0).expect("Failed to send frame!");
+            socket
+                .recv_bytes(0)
+                .expect("Couldn't acknowledge sending frame!");
+        }
     }
 
     pub fn send_brightness(&self, brightness: u8) {
