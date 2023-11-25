@@ -10,5 +10,4 @@ zmq = "0.10.0"
 members = [
   "viewer",
   "virtual_viewer",
-  "virtual_viewer_new"
 ]

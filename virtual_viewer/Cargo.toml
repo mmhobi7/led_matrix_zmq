@@ -1,12 +1,13 @@
 [package]
 name = "virtual_viewer"
-version = "0.1.0"
-edition = "2018"
+version = "0.1.2"
+edition = "2021"
 
 [dependencies]
 led_matrix_zmq = { path = "../" }
 
 gfx = "0.18.3"
-ggez = "0.7.1"
+ggez = "0.9.3"
 glam = { version = "0.24.2", features = ["mint"] }
 structopt = "0.3"
+crevice = "0.13"

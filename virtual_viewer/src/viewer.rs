@@ -1,68 +1,63 @@
+use crevice::std140::AsStd140;
+
+use std::path;
 use std::sync::Arc;
 
-use gfx::{self, *};
-use ggez::event::{self, EventHandler};
-use ggez::graphics::{self, Color};
+use ggez::event::{self};
+use ggez::graphics::{self, ImageFormat, Sampler};
 use ggez::{Context, ContextBuilder, GameResult};
 use glam::Vec2;
 
-use led_matrix_zmq::server::{ThreadedMatrixServerHandle, MatrixMessage};
+use led_matrix_zmq::server::{MatrixMessage, ThreadedMatrixServerHandle};
 
-const VERT_SHADER: &str = include_str!("matrix.glslv");
-const FRAG_SHADER: &str = include_str!("matrix.glslf");
+const WGSL_SHADER: &str = include_str!("matrix.wgsl");
 
-gfx::gfx_defines! {
-    constant MatrixPixelShader {
-        width: f32 = "u_Width",
-        height: f32 = "u_Height",
-    }
-}
-
-pub struct ViewerOpts {
-    pub scale: f32,
+#[derive(AsStd140)]
+struct Dim {
+    width: f32,
+    height: f32,
 }
 
 struct MainState {
     frame: Option<graphics::Image>,
-    matrix_shader: graphics::Shader<MatrixPixelShader>,
+    dim: Dim,
+    shader: graphics::Shader,
+    params: graphics::ShaderParams<Dim>,
     opts: ViewerOpts,
     zmq_handle: Arc<ThreadedMatrixServerHandle>,
 }
 
 impl MainState {
-    pub fn new(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>, ctx: &mut Context) -> GameResult<MainState> {
-        ggez::input::mouse::set_cursor_hidden(ctx, false);
-
-        let mps: MatrixPixelShader = MatrixPixelShader {
+    fn new(
+        opts: ViewerOpts,
+        zmq_handle: Arc<ThreadedMatrixServerHandle>,
+        ctx: &mut Context,
+    ) -> GameResult<MainState> {
+        let dim = Dim {
             width: zmq_handle.settings.width as f32,
             height: zmq_handle.settings.height as f32,
         };
+        let shader = graphics::ShaderBuilder::from_code(WGSL_SHADER).build(&ctx.gfx)?;
+        let params = graphics::ShaderParamsBuilder::new(&dim).build(ctx);
 
-        let shader = graphics::Shader::from_u8(
-            ctx,
-            VERT_SHADER.as_bytes(),
-            FRAG_SHADER.as_bytes(),
-            mps,
-            "MatrixPixelShader",
-            None,
-        )?;
-
-        Ok(MainState {
+        let s = MainState {
             frame: None,
-            matrix_shader: shader,
             opts,
             zmq_handle,
-        })
+            shader,
+            params,
+            dim,
+        };
+        Ok(s)
     }
 }
 
-impl EventHandler<ggez::GameError> for MainState {
-    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+impl event::EventHandler<ggez::GameError> for MainState {
+    fn update(&mut self, _ctx: &mut Context) -> GameResult {
         let zmq_msg = match self.zmq_handle.rx.try_recv() {
             Ok(m) => m,
             Err(_) => return Ok(()),
         };
-
         match zmq_msg {
             MatrixMessage::Frame(frame) => {
                 let rgba = frame
@@ -70,32 +65,33 @@ impl EventHandler<ggez::GameError> for MainState {
                     .flat_map(|chunk| [chunk[0], chunk[1], chunk[2], 255])
                     .collect::<Vec<_>>();
 
-                let mut img = graphics::Image::from_rgba8(
-                    ctx,
-                    self.zmq_handle.settings.width as u16,
-                    self.zmq_handle.settings.height as u16,
+                let img = graphics::Image::from_pixels(
+                    _ctx,
                     &rgba,
-                )
-                .unwrap();
-                img.set_filter(graphics::FilterMode::Nearest);
-
+                    ImageFormat::Rgba8UnormSrgb,
+                    self.zmq_handle.settings.width as u32,
+                    self.zmq_handle.settings.height as u32,
+                );
                 self.frame = Some(img);
-            },
+            }
             _ => (),
         }
 
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        graphics::clear(ctx, Color::BLACK);
+    fn draw(&mut self, ctx: &mut Context) -> GameResult {
+        let mut canvas = graphics::Canvas::from_frame(ctx, graphics::Color::BLACK);
 
         if let Some(frame) = self.frame.as_ref() {
-            let screen_coords = graphics::screen_coordinates(ctx);
+            let screen_coords = canvas.screen_coordinates().unwrap();
             let screen_center = Vec2::new(screen_coords.w / 2.0, screen_coords.h / 2.0);
 
-            let largest_frame_dim =
-                self.zmq_handle.settings.width.max(self.zmq_handle.settings.height) as f32;
+            let largest_frame_dim = self
+                .zmq_handle
+                .settings
+                .width
+                .max(self.zmq_handle.settings.height) as f32;
             let largest_screen_dim = screen_coords.w.max(screen_coords.h) as f32;
             let scale = largest_screen_dim / largest_frame_dim;
 
@@ -105,24 +101,30 @@ impl EventHandler<ggez::GameError> for MainState {
                 .offset(Vec2::new(0.5, 0.5));
 
             {
-                let _lock = graphics::use_shader(ctx, &self.matrix_shader);
-                graphics::draw(ctx, frame, draw_param).unwrap();
+                canvas.set_sampler(Sampler::nearest_clamp());
+                self.params.set_uniforms(ctx, &self.dim);
+                canvas.set_shader(&self.shader);
+                canvas.set_shader_params(&self.params);
+                canvas.draw(frame, draw_param);
             }
         }
 
-        graphics::present(ctx)
+        canvas.finish(ctx)?;
+        Ok(())
     }
 }
 
+pub struct ViewerOpts {
+    pub scale: f32,
+}
+
 pub fn run(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>) {
-    let (mut ctx, event_loop) = ContextBuilder::new("Matrix Viewer", "")
-        .window_mode(
-            ggez::conf::WindowMode::default()
-                .dimensions(
-                    zmq_handle.settings.width as f32 * opts.scale,
-                    zmq_handle.settings.height as f32 * opts.scale,
-                )
-        )
+    let (mut ctx, event_loop) = ContextBuilder::new("Matrix Viewer", "M.H.")
+        .window_setup(ggez::conf::WindowSetup::default().title("Matrix Viewer").srgb(true).vsync(true))
+        .window_mode(ggez::conf::WindowMode::default().dimensions(
+            zmq_handle.settings.width as f32 * opts.scale,
+            zmq_handle.settings.height as f32 * opts.scale,
+        ))
         .build()
         .unwrap();
 

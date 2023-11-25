@@ -1,9 +1,9 @@
 mod viewer;
 
+use led_matrix_zmq::server::{MatrixServerSettings, ThreadedMatrixServer};
 use std::clone::Clone;
 use std::sync::Arc;
 use structopt::StructOpt;
-use led_matrix_zmq::server::{MatrixServerSettings, ThreadedMatrixServer};
 
 #[derive(Clone, Debug, StructOpt)]
 #[structopt(name = "led-matrix-zmq-virtual")]
