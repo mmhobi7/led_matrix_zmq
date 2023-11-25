@@ -1,18 +1,29 @@
+use crevice::std140::AsStd140;
+use ggez::mint::ColumnMatrix4;
+use std::path;
 use std::sync::Arc;
 
 use ggez::event::{self};
 use ggez::graphics::{self, ImageFormat, Sampler};
 use ggez::{Context, ContextBuilder, GameResult};
-use glam::Vec2;
+use glam::{Mat4, Vec2};
 
 use led_matrix_zmq::server::{MatrixMessage, ThreadedMatrixServerHandle};
 
+#[derive(AsStd140)]
+struct Dim {
+    width: f32,
+    height: f32,
+    rotation: ColumnMatrix4<f32>,
+}
+
 struct MainState {
     frame: Option<graphics::Image>,
-    // matrix_shader: graphics::Shader<MatrixPixelShader>,
+    dim: Dim,
+    shader: graphics::Shader,
+    params: graphics::ShaderParams<Dim>,
     opts: ViewerOpts,
     zmq_handle: Arc<ThreadedMatrixServerHandle>,
-    pos_x: f32,
 }
 
 impl MainState {
@@ -21,16 +32,26 @@ impl MainState {
         zmq_handle: Arc<ThreadedMatrixServerHandle>,
         ctx: &mut Context,
     ) -> GameResult<MainState> {
-        // let mps: MatrixPixelShader = MatrixPixelShader {
-        //     width: zmq_handle.settings.width as f32,
-        //     height: zmq_handle.settings.height as f32,
-        // };
+        let dim = Dim {
+            width: zmq_handle.settings.width as f32,
+            height: zmq_handle.settings.height as f32,
+            rotation: Mat4::IDENTITY.into(),
+        };
+        let shader = graphics::ShaderBuilder::from_path("/matrix_frag.wgsl").build(&ctx.gfx)?;
+        // let shader = ctx
+        //     .gfx
+        //     .wgpu()
+        //     .device
+        //     .create_shader_module(wgpu::include_wgsl!("../resources/cube.wgsl"));
+        let params = graphics::ShaderParamsBuilder::new(&dim).build(ctx);
 
         let s = MainState {
-            pos_x: 0.0,
             frame: None,
             opts,
             zmq_handle,
+            shader,
+            params,
+            dim,
         };
         Ok(s)
     }
@@ -49,13 +70,6 @@ impl event::EventHandler<ggez::GameError> for MainState {
                     .flat_map(|chunk| [chunk[0], chunk[1], chunk[2], 255])
                     .collect::<Vec<_>>();
 
-                // // let mut img = graphics::Image::from_rgba8(
-                //     ctx,
-                //     self.zmq_handle.settings.width as u16,
-                //     self.zmq_handle.settings.height as u16,
-                //     &rgba,
-                // )
-                // .unwrap();
                 let img = graphics::Image::from_pixels(
                     _ctx,
                     &rgba,
@@ -63,15 +77,11 @@ impl event::EventHandler<ggez::GameError> for MainState {
                     self.zmq_handle.settings.width as u32,
                     self.zmq_handle.settings.height as u32,
                 );
-                // img.encode(_ctx, graphics::ImageEncodingFormat::Png,"/sw.png").unwrap();
-                // img.set_filter(graphics::FilterMode::Nearest);
-
                 self.frame = Some(img);
             }
             _ => (),
         }
 
-        self.pos_x = self.pos_x % 800.0 + 1.0;
         Ok(())
     }
 
@@ -98,8 +108,12 @@ impl event::EventHandler<ggez::GameError> for MainState {
 
             {
                 // let _lock = graphics::use_shader(ctx, &self.matrix_shader);
-                // graphics::draw(ctx, frame, draw_param).unwrap();
+                self.dim.rotation =
+                    Mat4::from_rotation_z(ctx.time.time_since_start().as_secs_f32()).into();
                 canvas.set_sampler(Sampler::nearest_clamp());
+                self.params.set_uniforms(ctx, &self.dim);
+                canvas.set_shader(&self.shader);
+                canvas.set_shader_params(&self.params);
                 canvas.draw(frame, draw_param);
             }
         }
@@ -114,11 +128,16 @@ pub struct ViewerOpts {
 }
 
 pub fn run(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>) {
-    let (mut ctx, event_loop) = ContextBuilder::new("Matrix Viewer", "")
+    // We add the CARGO_MANIFEST_DIR/resources to the resource paths
+    // so that ggez will look in our cargo project directory for files.
+    let resource_dir = path::PathBuf::from("./resources");
+
+    let (mut ctx, event_loop) = ContextBuilder::new("Matrix Viewer", "M.H.")
         .window_mode(ggez::conf::WindowMode::default().dimensions(
             zmq_handle.settings.width as f32 * opts.scale,
             zmq_handle.settings.height as f32 * opts.scale,
         ))
+        .add_resource_path(resource_dir)
         .build()
         .unwrap();
 
