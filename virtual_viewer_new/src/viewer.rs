@@ -1,12 +1,12 @@
 use crevice::std140::AsStd140;
-use ggez::mint::ColumnMatrix4;
+
 use std::path;
 use std::sync::Arc;
 
 use ggez::event::{self};
 use ggez::graphics::{self, ImageFormat, Sampler};
 use ggez::{Context, ContextBuilder, GameResult};
-use glam::{Mat4, Vec2};
+use glam::Vec2;
 
 use led_matrix_zmq::server::{MatrixMessage, ThreadedMatrixServerHandle};
 
@@ -14,7 +14,6 @@ use led_matrix_zmq::server::{MatrixMessage, ThreadedMatrixServerHandle};
 struct Dim {
     width: f32,
     height: f32,
-    rotation: ColumnMatrix4<f32>,
 }
 
 struct MainState {
@@ -35,14 +34,8 @@ impl MainState {
         let dim = Dim {
             width: zmq_handle.settings.width as f32,
             height: zmq_handle.settings.height as f32,
-            rotation: Mat4::IDENTITY.into(),
         };
         let shader = graphics::ShaderBuilder::from_path("/matrix_frag.wgsl").build(&ctx.gfx)?;
-        // let shader = ctx
-        //     .gfx
-        //     .wgpu()
-        //     .device
-        //     .create_shader_module(wgpu::include_wgsl!("../resources/cube.wgsl"));
         let params = graphics::ShaderParamsBuilder::new(&dim).build(ctx);
 
         let s = MainState {
@@ -86,8 +79,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        let mut canvas =
-            graphics::Canvas::from_frame(ctx, graphics::Color::BLACK);
+        let mut canvas = graphics::Canvas::from_frame(ctx, graphics::Color::BLACK);
 
         if let Some(frame) = self.frame.as_ref() {
             let screen_coords = canvas.screen_coordinates().unwrap();
@@ -107,9 +99,6 @@ impl event::EventHandler<ggez::GameError> for MainState {
                 .offset(Vec2::new(0.5, 0.5));
 
             {
-                // let _lock = graphics::use_shader(ctx, &self.matrix_shader);
-                self.dim.rotation =
-                    Mat4::from_rotation_z(ctx.time.time_since_start().as_secs_f32()).into();
                 canvas.set_sampler(Sampler::nearest_clamp());
                 self.params.set_uniforms(ctx, &self.dim);
                 canvas.set_shader(&self.shader);
@@ -128,8 +117,6 @@ pub struct ViewerOpts {
 }
 
 pub fn run(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>) {
-    // We add the CARGO_MANIFEST_DIR/resources to the resource paths
-    // so that ggez will look in our cargo project directory for files.
     let resource_dir = path::PathBuf::from("./resources");
 
     let (mut ctx, event_loop) = ContextBuilder::new("Matrix Viewer", "M.H.")

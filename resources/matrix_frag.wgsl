@@ -7,7 +7,6 @@ struct VertexOutput {
 struct Dim {
     width: f32,
     height: f32,
-    rotation: mat4x4<f32>,
 }
 
 struct GgezDrawUniforms {
@@ -41,7 +40,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let tex: vec3<f32> = textureSample(t, s, in.uv).rgb;
     let pix: vec3<f32> = (tex * blob_mask) + (tex * (1.0 - blob_mask)) * 0.05;
 
-    // return textureSample(t, s, in.uv) * in.color * dim.rate;
     return vec4(pix, 1.0);
 }
 
@@ -52,17 +50,8 @@ fn vs_main(
     @location(2) color: vec4<f32>,
 ) -> VertexOutput {
     var out: VertexOutput;
-    // out.uv = uv * uniforms.src_rect.zw + uniforms.src_rect.xy;
     out.uv = mix(uniforms.src_rect.xy, uniforms.src_rect.zw, uv);
     out.color = color; // which color? uniforms.color or color?
-    // out.position = vec4<f32>(position, 0.0, 1.0);
     out.position = uniforms.transform * vec4<f32>(position, 0.0, 1.0);
-    
-
-
-
-    // out.position = uniforms.transform * my_uniforms.rotation * vec4<f32>(position, 0.0, 1.0);
-    // out.uv = mix(uniforms.src_rect.xy, uniforms.src_rect.zw, uv);
-    // out.color = uniforms.color * color;
     return out;
 }

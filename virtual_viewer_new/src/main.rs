@@ -1,9 +1,9 @@
 mod viewer;
 
+use led_matrix_zmq::server::{MatrixServerSettings, ThreadedMatrixServer};
 use std::clone::Clone;
 use std::sync::Arc;
 use structopt::StructOpt;
-use led_matrix_zmq::server::{MatrixServerSettings, ThreadedMatrixServer};
 
 #[derive(Clone, Debug, StructOpt)]
 #[structopt(name = "led-matrix-zmq-virtual")]
@@ -20,7 +20,7 @@ pub struct Opt {
     /// Matrix scale, for the size of the window.
     pub scale: f32,
 
-    #[structopt(short, long, default_value = "tcp://*:42025")]
+    #[structopt(short, long, default_value = "tcp://*:42024")]
     /// Address to bind ZMQ server to.
     pub bind_address: String,
 }
