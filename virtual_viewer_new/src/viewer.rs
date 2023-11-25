@@ -120,6 +120,7 @@ pub struct ViewerOpts {
 
 pub fn run(opts: ViewerOpts, zmq_handle: Arc<ThreadedMatrixServerHandle>) {
     let (mut ctx, event_loop) = ContextBuilder::new("Matrix Viewer", "M.H.")
+        .window_setup(ggez::conf::WindowSetup::default().title("Matrix Viewer").srgb(true).vsync(true))
         .window_mode(ggez::conf::WindowMode::default().dimensions(
             zmq_handle.settings.width as f32 * opts.scale,
             zmq_handle.settings.height as f32 * opts.scale,
